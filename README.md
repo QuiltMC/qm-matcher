@@ -7,8 +7,8 @@ In this tutorial our old version will be `1.18` and our new version will be `1.1
 0. Before you start, make sure you've merged all pull requests marked with `final-comment-period` in the QM repo!
 1. Clone this repo. We'll be calling the folder you cloned it into our `root` folder.
 2. Enter your root folder.
-3. Clone QM with `git clone https://github.com/quiltmc/quilt-mappings` and rename the folder to your old version. For us, this means we'll have a QM clone in a directory named `1.18`.
-4. Repeat, this time naming the folder after your new version.
+3. Clone QM with `git clone https://github.com/quiltmc/quilt-mappings [your old version name]`. For us, this means we'll have a QM clone in a directory named `1.18`.
+4. Repeat, this time naming the clone after your new version.
 5. Open up `save_methods.mjs` and replace the version constants with yours. For our example, this means we'll be replacing `from_version` with `1.18` and `to_version` with `1.19`.
 6. Download the hashed tiny file for your new version from [here](https://maven.quiltmc.org/repository/release/org/quiltmc/hashed/). The file you're looking for should be named something like `hashed-1.19.tiny`. Place the file in your root folder.
 7. Go into your new version clone and update the `MINECRAFT_VERSION` constant in `buildSrc/src/main/java/quilt/internal/Constants.java` to match your current version.
