@@ -2,7 +2,6 @@
  * Bunch of stuff to deal with Enigma mappings.
  */
 
-import { readdirSync, readFileSync, mkdirSync, writeFileSync, unlinkSync } from "fs";
 import * as java from "./java.mjs";
 
 /**
@@ -53,10 +52,10 @@ export class Method extends Mapping {
 
     detailed_params(is_static) {
         let lvt = is_static ? 0 : 1;
-        let params = [];
+        const params = [];
 
         for (const param of this.descriptor.params) {
-            let arg = this.args[lvt];
+            const arg = this.args[lvt];
 
             params.push({
                 lvt: lvt,
@@ -224,7 +223,7 @@ export class Mappings {
      */
     find_class(name) {
         if (name.includes("$")) {
-            let split = name.split("$");
+            const split = name.split("$");
             return this.classes.find(obj => obj.intermediary === split[split.length - 1]);
         }
         return this.classes.find(obj => obj.intermediary === name);
@@ -236,7 +235,7 @@ export class Mappings {
 }
 
 export function parse_class_mapping(input) {
-    let lines = input.split("\n");
+    const lines = input.split("\n");
 
     // The parsed mapping class.
     let return_class;
@@ -245,17 +244,17 @@ export function parse_class_mapping(input) {
     let current_method;
 
     // 0 is the return class.
-    let current_classes = [];
+    const current_classes = [];
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
-        let scope = (line.match(/\t/g) || []).length;
+        const scope = (line.match(/\t/g) || []).length;
 
         line = line.replace(/\t/g, "");
 
-        let map = line.split(" ");
+        const map = line.split(" ");
 
-        let type = map[0];
+        const type = map[0];
 
         let current_class = current_classes.length === 0 ? undefined : current_classes[scope - 1];
 
@@ -280,29 +279,34 @@ export function parse_class_mapping(input) {
         }
 
         switch (type) {
-            case "METHOD":
-                let intermediary = map[1];
-                let named = (map.length === 4) ? map[2] : "";
-                let signature = (map.length === 4) ? map[3] : map[2];
+            case "METHOD": {
+                const intermediary = map[1];
+                const named = (map.length === 4) ? map[2] : "";
+                const signature = (map.length === 4) ? map[3] : map[2];
                 current_object = current_method = new Method(current_class, intermediary, named, signature);
                 current_class.methods.push(current_method);
                 break;
-            case "FIELD":
+            }
+            case "FIELD": {
                 if (map[3] === undefined) {
                     current_class.fields.push(current_object = new Field(current_class, map[1], "", map[2]));
                 } else {
                     current_class.fields.push(current_object = new Field(current_class, map[1], map[2], map[3]));
                 }
                 break;
-            case "ARG":
+            }
+            case "ARG": {
                 // Arguments can also get comments.
                 current_object = current_method.args[parseInt(map[1])] = new Mapping(undefined, map[2]);
                 break;
-            case "COMMENT":
+            }
+            case "COMMENT": {
                 current_object.comments.push(line.replace(/COMMENT ?/, ""))
                 break;
-            default:
+            }
+            default: {
                 break;
+            }
         }
     }
 
@@ -377,7 +381,7 @@ export function stringify_class_mapping(clazz, scope = 0) {
         scope++;
 
         for (let index = 0; index < method.args.length; index++) {
-            let arg = method.args[index];
+            const arg = method.args[index];
 
             if (arg === undefined || arg.named === undefined || arg.named === "undefined")
                 continue;
@@ -402,27 +406,27 @@ export function stringify_class_mapping(clazz, scope = 0) {
 }
 
 export function read_class_mapping(file) {
-    let object = parse_class_mapping(readFileSync(file, "utf8"));
+    const object = parse_class_mapping(Deno.readTextFileSync(file));
     object.file = file;
     return object;
 }
 
 export function read_mappings(root, mappings) {
-    let files = readdirSync(root, {withFileTypes: true});
-    files.forEach(file => {
-        if (file.isFile())
-            mappings.append_tree(read_class_mapping(root + file.name));
-        else if (file.isDirectory())
-            read_mappings(root + file.name + "/", mappings);
-    });
+    for (const dirEntry of Deno.readDirSync(root)) {
+        if (dirEntry.isFile) {
+            mappings.append_tree(read_class_mapping(root + dirEntry.name));
+        } else if (dirEntry.isDirectory) {
+            read_mappings(root + dirEntry.name + "/", mappings);
+        }
+    }
 }
 
 export function write_class_mapping(old_root, new_root, clazz) {
-    let mapping = stringify_class_mapping(clazz);
+    const mapping = stringify_class_mapping(clazz);
 
-    let file = clazz.file.replace(old_root, new_root);
+    const file = clazz.file.replace(old_root, new_root);
 
-    let path = file.split("/");
+    const path = file.split("/");
 
     let dir = "";
 
@@ -430,14 +434,14 @@ export function write_class_mapping(old_root, new_root, clazz) {
         dir += path[i] + "/";
     }
 
-    mkdirSync(dir, {recursive: true});
+    Deno.mkdirSync(dir, { recursive: true });
 
-    writeFileSync(file, mapping, {encoding: "utf8"});
+    Deno.writeTextFileSync(file, mapping);
 }
 
 export function replace_class_mapping(current_root, old_root, new_root, old_class, new_class) {
-    let old_file = old_class.file.replace(old_root, new_root);
-    unlinkSync(old_file);
+    const old_file = old_class.file.replace(old_root, new_root);
+    Deno.removeSync(old_file);
     old_class.named = new_class.named;
     old_class.file = new_class.file.replace(current_root, new_root);
     write_class_mapping("", "", old_class);

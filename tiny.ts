@@ -12,7 +12,13 @@ const ELEMENT_REGEX = /^\t([mf])\t(\S+)\t([A-z0-9$\/_]+)\t([A-z0-9$\/_]+)$/;
  * Represents a tiny file.
  */
 export class TinyFile {
-    constructor(version, from_mappings, to_mappings) {
+    version: string;
+    from_mappings: string;
+    to_mappings: string;
+
+    classes: TinyClass[];
+
+    constructor(version: string, from_mappings: string, to_mappings: string) {
         this.version = version;
         this.from_mappings = from_mappings;
         this.to_mappings = to_mappings;
@@ -24,10 +30,11 @@ export class TinyFile {
         return this.classes.flatMap(clazz => clazz.methods);
     }
 
-    resolve_type(type) {
+    resolve_type(type: string): string {
         let result;
         if ((result = DETAILED_TYPE_REGEX.exec(type)) && result[2][0] === "L") {
-            let remapped_class = this.find_base_class(result[2].substr(1, result[2].length - 2));
+            // const remapped_class = this.find_base_class(result[2].substr(1, result[2].length - 2));
+            const remapped_class = this.find_base_class(result[2].substring(1, result[2].length - 1));
             if (remapped_class) {
                 type = `${result[1]}L${remapped_class.to};`;
             }
@@ -42,7 +49,7 @@ export class TinyFile {
      * @param {string} name the base name
      * @returns {TinyClass|null} the class if found, otherwise `null`
      */
-    find_base_class(name) {
+    find_base_class(name: string): TinyClass | null {
         for (const clazz of this.classes) {
             if (clazz.from === name)
                 return clazz;
@@ -51,7 +58,7 @@ export class TinyFile {
         return null;
     }
 
-    find_base_method(name) {
+    find_base_method(name: string): TinyMethod | null {
         for (const clazz of this.classes) {
             for (const method of clazz.methods) {
                 if (method.from === name) {
@@ -63,7 +70,7 @@ export class TinyFile {
         return null;
     }
 
-    find_target_field(name) {
+    find_target_field(name: string): TinyField | null {
         for (const clazz of this.classes) {
             for (const field of clazz.fields) {
                 if (field.to === name) {
@@ -75,7 +82,7 @@ export class TinyFile {
         return null;
     }
 
-    find_target_method(name) {
+    find_target_method(name: string): TinyMethod | null {
         for (const clazz of this.classes) {
             for (const method of clazz.methods) {
                 if (method.to === name) {
@@ -92,7 +99,10 @@ export class TinyFile {
  * Represents an entry in a tiny file.
  */
 class TinyEntry {
-    constructor(from, to) {
+    from: string;
+    to: string;
+
+    constructor(from: string, to: string) {
         this.from = from;
         this.to = to;
     }
@@ -102,7 +112,7 @@ class TinyEntry {
      *
      * @return {string} the type of this entry
      */
-    get_type() {
+    get_type(): string {
         throw new ReferenceError("get_type isn't implemented.");
     }
 }
@@ -111,14 +121,17 @@ class TinyEntry {
  * Represents a class in the tiny format.
  */
 export class TinyClass extends TinyEntry {
-    constructor(from, to) {
+    fields: TinyField[];
+    methods: TinyMethod[];
+
+    constructor(from: string, to: string) {
         super(from, to);
 
         this.fields = [];
         this.methods = [];
     }
 
-    get_type() {
+    get_type(): string {
         return "c";
     }
 
@@ -127,11 +140,11 @@ export class TinyClass extends TinyEntry {
      *
      * @returns {boolean} `true` if this is a subclass, otherwise `false`
      */
-    is_subclass() {
+    is_subclass(): boolean {
         return this.from.includes("$");
     }
 
-    push(element) {
+    push(element: TinyClassEntry) {
         if (element instanceof TinyField) {
             this.fields.push(element);
         } else if (element instanceof TinyMethod) {
@@ -146,12 +159,14 @@ export class TinyClass extends TinyEntry {
  * Represents an entry inside a class.
  */
 class TinyClassEntry extends TinyEntry {
+    owner: TinyClass;
+
     /**
      * @param {TinyClass} owner the owner class
      * @param {string} from the base name
      * @param {string} to the new name
      */
-    constructor(owner, from, to) {
+    constructor(owner: TinyClass, from: string, to: string) {
         super(from, to);
         this.owner = owner;
     }
@@ -161,22 +176,24 @@ class TinyClassEntry extends TinyEntry {
  * Represents a field in the tiny format.
  */
 export class TinyField extends TinyClassEntry {
+    type: string;
+
     /**
      * @param {TinyClass} owner the owner class
      * @param {string} from the base name
      * @param {string} to the new name
      * @param {string} type the type/descriptor of this field
      */
-    constructor(owner, from, to, type) {
+    constructor(owner: TinyClass, from: string, to: string, type: string) {
         super(owner, from, to);
         this.type = type;
     }
 
-    resolve_type(tiny_file) {
+    resolve_type(tiny_file: TinyFile) {
         return tiny_file.resolve_type(this.type);
     }
 
-    get_type() {
+    get_type(): string {
         return "f";
     }
 }
@@ -185,13 +202,15 @@ export class TinyField extends TinyClassEntry {
  * Represents a method in the tiny format.
  */
 export class TinyMethod extends TinyClassEntry {
+    descriptor: FunctionDescriptor;
+
     /**
      * @param {TinyClass} owner the owner class
      * @param {string} from the base name
      * @param {string} to the new name
      * @param {FunctionDescriptor} descriptor the descriptor of this field
      */
-    constructor(owner, from, to, descriptor) {
+    constructor(owner: TinyClass, from: string, to: string, descriptor: FunctionDescriptor) {
         super(owner, from, to);
         this.descriptor = descriptor;
     }
@@ -202,9 +221,9 @@ export class TinyMethod extends TinyClassEntry {
      * @param {TinyFile} tiny_file the tiny file
      * @return {FunctionDescriptor} the remapped descriptor
      */
-    resolve_descriptor(tiny_file) {
-        let return_type = tiny_file.resolve_type(this.descriptor.return_type);
-        return new FunctionDescriptor(this.descriptor.params.map(param => tiny_file.resolve_type(param)), return_type);
+    resolve_descriptor(tiny_file: TinyFile): FunctionDescriptor {
+        const return_type = tiny_file.resolve_type(this.descriptor.return_type);
+        return new FunctionDescriptor(this.descriptor.params.map((param: string) => tiny_file.resolve_type(param)), return_type);
     }
 
     get_type() {
@@ -212,24 +231,26 @@ export class TinyMethod extends TinyClassEntry {
     }
 }
 
-export function parse(source) {
+export function parse(source: string): TinyFile {
     const lines = source.split(/\r?\n/);
 
-    let header = HEADER_REGEX.exec(lines[0]);
+    const header = HEADER_REGEX.exec(lines[0]);
     if (!header) {
         throw new SyntaxError("Header could not be parsed.");
     }
 
-    let tiny = new TinyFile(header[1] + "." + header[2], header[3], header[4]);
+    const tiny = new TinyFile(header[1] + "." + header[2], header[3], header[4]);
     let current_class;
 
     for (let i = 1; i < lines.length; i++) {
-        let line = lines[i];
+        const line = lines[i];
         let result = CLASS_REGEX.exec(line);
 
         if (result) {
             tiny.classes.push(current_class = new TinyClass(result[1], result[2]));
         } else if ((result = ELEMENT_REGEX.exec(line))) {
+            if (current_class === undefined) continue;
+
             let element;
 
             switch (result[1]) {

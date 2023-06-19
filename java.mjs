@@ -2,7 +2,7 @@
  * Represents a util file about Java-related stuff.
  */
 
-import { JavaClassFileReader } from "java-class-tools";
+import { JavaClassFileReader } from "npm:java-class-tools";
 
 export const SIGNATURE_REGEX = /^\((.*)\)(.+)$/;
 export const TYPE_REGEX = /^(?:V|\[*(?:Z|B|C|S|I|J|F|D|L(?:[a-z0-9/]+)\/[A-Za-z0-9_]+(?:\$[A-Za-z0-9_]+)?;))$/;
@@ -65,7 +65,7 @@ export class FunctionDescriptor {
 function parse_type(source, start = 0) {
     let parse_object = false;
     for (let i = start; i < source.length; i++) {
-        let current_char = source[i];
+        const current_char = source[i];
         switch (current_char) {
             case "[": {
                 if (parse_object)
@@ -91,6 +91,7 @@ function parse_type(source, start = 0) {
                 if (!parse_object) {
                     return current_char;
                 }
+                break;
             }
             default: {
                 if (!parse_object)
@@ -107,16 +108,16 @@ function parse_type(source, start = 0) {
  * @return {FunctionDescriptor} the parsed descriptor
  */
 export function parse_function_descriptor(descriptor) {
-    let result = descriptor.match(SIGNATURE_REGEX);
+    const result = descriptor.match(SIGNATURE_REGEX);
     if (result) {
-        let raw_params = result[1];
-        let return_type = result[2];
+        const raw_params = result[1];
+        const return_type = result[2];
 
-        let params = [];
+        const params = [];
 
         let i = 0;
         while (i < raw_params.length) {
-            let type = parse_type(raw_params, i);
+            const type = parse_type(raw_params, i);
             params.push(type);
             i += type.length;
         }

@@ -1,0 +1,5 @@
+{
+    "tasks": {
+        "match": "deno run --allow-read --allow-write --allow-net save_methods.ts"
+    }
+}

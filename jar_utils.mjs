@@ -2,16 +2,15 @@
  * Utilities to deal with class files since java-class-tools is a bit barebone.
  */
 
-import JSZip from "jszip";
-import { Modifier } from "java-class-tools";
+import JSZip from "npm:jszip";
+import { Modifier } from "npm:java-class-tools";
 import * as enigma from "./enigma_mappings.mjs";
 import * as java from "./java.mjs"
-import * as fs from "fs";
 
 const TEXT_DECODER = new TextDecoder();
 
-export function load_file(path) {
-    return new JarFile(new JSZip(fs.readFileSync(path), {base64: false, checkCRC32: false}));
+export async function load_file(path) {
+    return new JarFile(await JSZip.loadAsync(Deno.readFileSync(path), {base64: false, checkCRC32: false}));
 }
 
 export class JarFile {
@@ -27,7 +26,7 @@ export class JarFile {
      * @param {enigma.Class|string} clazz the class to load
      * @returns 
      */
-    load_class(clazz) {
+    async load_class(clazz) {
         if (clazz instanceof enigma.Class) {
             clazz = clazz.toString();
         }
@@ -38,7 +37,7 @@ export class JarFile {
         const path = clazz + ".class";
         const file = this.jar.files[path];
 
-        return this.classes[clazz] = new ClassFile(java.CLASS_FILE_READER.read(file._data.getContent()));
+        return this.classes[clazz] = new ClassFile(java.CLASS_FILE_READER.read(await file.async("uint8array")));
     }
 }
 
