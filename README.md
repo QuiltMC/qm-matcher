@@ -2,7 +2,7 @@
 
 ## setup
 
-In order to match, you must have both [deno](https://deno.com/manual@v1.11.0/getting_started/installation) and java installed.
+In order to match, you must have both [deno](https://deno.com/manual/getting_started/installation) and java installed.
 
 In this tutorial our old version will be `1.18` and our new version will be `1.19`.
 
