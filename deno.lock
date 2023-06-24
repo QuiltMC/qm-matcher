@@ -1,6 +1,8 @@
 {
   "version": "2",
-  "remote": {},
+  "remote": {
+    "https://deno.land/x/execute@v1.1.0/mod.ts": "893a18bfd4200a3c3da01cf9da3d9555ef17295e54d3b2a87ddef18b6389727c"
+  },
   "npm": {
     "specifiers": {
       "java-class-tools": "java-class-tools@1.3.2",
