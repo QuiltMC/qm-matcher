@@ -20,18 +20,18 @@ console.log("Loading mappings...");
 const base_mappings = new enigma.Mappings("base");
 const new_mappings = new enigma.Mappings("new");
 // @TODO unharcode this
-enigma.read_mappings(from_version + "/mappings/", base_mappings);
-enigma.read_mappings(to_version + "/mappings/", new_mappings);
+enigma.read_mappings('qm/' + from_version + "/mappings/", base_mappings);
+enigma.read_mappings('qm/' + to_version + "/mappings/", new_mappings);
 
 // @TODO download it from somewhere the maven? (snapshot make it a bit complicated)
 console.log(`Downloading ${to_version} hashed tiny file...`);
 
 const new_tiny_download = await fetch(`${HASHED_MAVEN_ROUTE}/${to_version}/hashed-${to_version}.tiny`);
-const file = await Deno.open(`hashed-${to_version}.tiny`, { create: true, write: true });
+const file = await Deno.open(`qm/hashed-${to_version}.tiny`, { create: true, write: true });
 await new_tiny_download.body?.pipeTo(file.writable);
 
 console.log(`Loading ${to_version} hashed tiny file...`);
-const new_tiny_file = await Deno.readTextFile(`hashed-${to_version}.tiny`);
+const new_tiny_file = await Deno.readTextFile(`qm/hashed-${to_version}.tiny`);
 const new_tiny = tiny.parse(new_tiny_file);
 
 async function load_jar_file(base_path: string, version: string) {
@@ -40,9 +40,9 @@ async function load_jar_file(base_path: string, version: string) {
 }
 
 console.log(`Loading ${from_version} hashed mojmap JAR file...`);
-const base_hashed_mojmap_jar = await load_jar_file(from_version + "/", from_version);
+const base_hashed_mojmap_jar = await load_jar_file('qm/' + from_version + "/", from_version);
 console.log(`Loading ${to_version} hashed mojmap JAR file...`);
-const new_hashed_mojmap_jar = await load_jar_file(to_version + "/", to_version);
+const new_hashed_mojmap_jar = await load_jar_file('qm/' + to_version + "/", to_version);
 
 interface A {
     lvt: number,

@@ -12,7 +12,7 @@ if (to_version === undefined) {
 }
 
 console.log("Cleaning up folder...")
-for (const dirEntry of Deno.readDirSync("./")) {
+for (const dirEntry of Deno.readDirSync("./qm")) {
     if (dirEntry.isDirectory && existsSync(dirEntry.name + "/mappings")) {
         console.log("Deleting old mappings directory " + dirEntry.name + "...")
         Deno.removeSync("./" + dirEntry.name, { recursive: true });
@@ -21,20 +21,20 @@ for (const dirEntry of Deno.readDirSync("./")) {
 
 // clone
 console.log('Cloning old qm version...')
-await exec('git clone https://github.com/quiltmc/quilt-mappings.git --depth 1 --branch ' + from_version + ' --single-branch ' + from_version);
+await exec('git clone https://github.com/quiltmc/quilt-mappings.git --depth 1 --branch ' + from_version + ' --single-branch qm/' + from_version);
 
 console.log('Copying to new version...')
-await exec('cp -r ' + from_version + ' ' + to_version);
+await exec('cp -r qm/' + from_version + ' qm/' + to_version);
 
 // update version
 console.log('Updating version in new clone...')
 const decoder = new TextDecoder('utf-8')
-const contents = Deno.readFileSync(to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
+const contents = Deno.readFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
 const text = decoder.decode(contents);
 const new_text = text.replace(from_version, to_version);
-Deno.writeFileSync(to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java', new TextEncoder().encode(new_text))
+Deno.writeFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java', new TextEncoder().encode(new_text))
 
-const new_contents = Deno.readFileSync(to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
+const new_contents = Deno.readFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
 const new_raw_text = decoder.decode(new_contents);
 if (!new_raw_text.includes(to_version) || new_raw_text.includes(from_version)) {
     throw new Error("Failed to update version in new clone! Check that your versions are correct (first version must match current QM default branch), and if yes, please follow manual steps, starting at step 5.");
@@ -42,7 +42,7 @@ if (!new_raw_text.includes(to_version) || new_raw_text.includes(from_version)) {
 
 // set up new branch
 console.log('Setting up new branch...')
-await exec('git -C ' + to_version + ' checkout -b ' + to_version)
+await exec('git -C qm/' + to_version + ' checkout -b ' + to_version)
 
 console.log("Done!");
 Deno.exit(0);
