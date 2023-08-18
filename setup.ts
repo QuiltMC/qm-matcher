@@ -21,7 +21,7 @@ for (const dirEntry of Deno.readDirSync("./")) {
 
 // clone
 console.log('Cloning old qm version...')
-await exec('git clone https://github.com/quiltmc/quilt-mappings.git ' + from_version);
+await exec('git clone https://github.com/quiltmc/quilt-mappings.git --depth 1 --branch ' + from_version + ' --single-branch ' + from_version);
 
 console.log('Copying to new version...')
 await exec('cp -r ' + from_version + ' ' + to_version);
