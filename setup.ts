@@ -12,10 +12,12 @@ if (to_version === undefined) {
 }
 
 console.log("Cleaning up folder...")
-for (const dirEntry of Deno.readDirSync("./qm")) {
-    if (dirEntry.isDirectory && existsSync(dirEntry.name + "/mappings")) {
-        console.log("Deleting old mappings directory " + dirEntry.name + "...")
-        Deno.removeSync("./" + dirEntry.name, { recursive: true });
+if (existsSync("./qm")) {
+    for (const dirEntry of Deno.readDirSync("./qm")) {
+        if (dirEntry.isDirectory && existsSync(dirEntry.name + "/mappings")) {
+            console.log("Deleting old mappings directory " + dirEntry.name + "...")
+            Deno.removeSync("./" + dirEntry.name, {recursive: true});
+        }
     }
 }
 

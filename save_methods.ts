@@ -107,7 +107,7 @@ for (const method of base_mappings.methods) {
 
             // Simple case: only the return type changes.
             if (method.descriptor.are_params_equal_with(new_descriptor)) {
-                console.log(`\u001b[92mMethod ${method.intermediary} (${method.named}) have a different return type (${method.descriptor.return_type} => ${new_descriptor.return_type}).\u001b[0m`);
+                console.log(`\u001b[92mMethod ${method.intermediary} (${method.named}) has a different return type (${method.descriptor.return_type} => ${new_descriptor.return_type}).\u001b[0m`);
 
                 // @TODO actually check if the static modifier changes?
                 new_method = new enigma.Method(new_class, method.intermediary, method.named, new_descriptor);
@@ -117,7 +117,7 @@ for (const method of base_mappings.methods) {
 
                 fixed_methods.push(method);
             } else {
-                console.log(`\u001b[38;5;208mMethod ${method.intermediary} (${method.named}) have a different descriptor (${method.descriptor.toString()} => ${new_descriptor.toString()}).\u001b[0m`);
+                console.log(`\u001b[38;5;208mMethod ${method.intermediary} (${method.named}) has a different descriptor (${method.descriptor.toString()} => ${new_descriptor.toString()}).\u001b[0m`);
                 const new_class = new_mappings.find_class(method.owner_class.toString());
 
                 // Bad luck, the parameters changed.
