@@ -16,14 +16,15 @@ You can also set up manually, see [manual setup](#manual-setup).
 ## matching
 
 1. In both the old and new clones, run `./gradlew mapPerVersionMappingsJar`.
-2. In the new clone, run `./gradlew dropInvalidMappings`.
-3. Run `git add .` and `git commit -m "[your new version name]"` to commit. For us, this is `git commit -m "1.19"`.
-4. Return to your root folder and run `deno task match [your old version] [your new version]`. For us, this is `deno task match 1.18 1.19`.
-5. In the new clone, run `./gradlew dropInvalidMappings` again.
-6. Run `./gradlew generatePackageInfoMappings` to generate new package info files.
-7. Run `./gradlew build javadocJar` to test your build.
-8. Run `git add .` and `git commit -m "match [your new version name] to [your old version name]"` to commit. For us, this is `git commit -m "match 1.19 to 1.18"`.
-9. Run `git push`, and you're done!
+   - If you're seeing a "Could not resolve all files for configuration :hashed" error, it means that the [hashed](https://github.com/QuiltMC/mappings-hasher) publication is not yet released for the new minecraft version. This should normally happen automatically, but github will disable the automatic publishing if hashed has not seen activity in 60 days. In that case, go over to the [check and publish](https://github.com/QuiltMC/mappings-hasher/actions/workflows/check-and-publish.yml) action and reenable it. Manually trigger a run, and the hashed file should be available for your version in 2-3 minutes.
+3. In the new clone, run `./gradlew dropInvalidMappings`.
+4. Run `git add .` and `git commit -m "[your new version name]"` to commit. For us, this is `git commit -m "1.19"`.
+5. Return to your root folder and run `deno task match [your old version] [your new version]`. For us, this is `deno task match 1.18 1.19`.
+6. In the new clone, run `./gradlew dropInvalidMappings` again.
+7. Run `./gradlew generatePackageInfoMappings` to generate new package info files.
+8. Run `./gradlew build javadocJar` to test your build.
+9. Run `git add .` and `git commit -m "match [your new version name] to [your old version name]"` to commit. For us, this is `git commit -m "match 1.19 to 1.18"`.
+10. Run `git push`, and you're done!
 
 
 ## manual setup
