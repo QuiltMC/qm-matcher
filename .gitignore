@@ -3,3 +3,4 @@
 *.jar
 *.tiny
 /*
+deno.lock

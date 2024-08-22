@@ -26,6 +26,10 @@ You can also set up manually, see [manual setup](#manual-setup).
 9. Run `git add .` and `git commit -m "match [your new version name] to [your old version name]"` to commit. For us, this is `git commit -m "match 1.19 to 1.18"`.
 10. Run `git push`, and you're done!
 
+## post match
+
+1. In the [github settings](https://github.com/QuiltMC/quilt-mappings/settings), update the default branch to the branch you just pushed.
+2. Add the `update-base` label to all [pull requests](https://github.com/QuiltMC/quilt-mappings/pulls), excluding backports.
 
 ## manual setup
 
