@@ -30,15 +30,21 @@ await exec('cp -r qm/' + from_version + ' qm/' + to_version);
 
 // update version
 console.log('Updating version in new clone...')
-const decoder = new TextDecoder('utf-8')
-const contents = Deno.readFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
-const text = decoder.decode(contents);
-const new_text = text.replace(from_version, to_version);
-Deno.writeFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java', new TextEncoder().encode(new_text))
+const versionsFile = 'qm/' + to_version + '/gradle/libs.versions.toml'
 
-const new_contents = Deno.readFileSync('qm/' + to_version + '/buildSrc/src/main/java/quilt/internal/Constants.java')
+const decoder = new TextDecoder('utf-8')
+const contents = Deno.readFileSync(versionsFile)
+const text = decoder.decode(contents);
+
+const old_version_string = 'minecraft = "' + from_version + '"';
+const new_version_string = 'minecraft = "' + to_version + '"';
+
+const new_text = text.replace(old_version_string, new_version_string);
+Deno.writeFileSync(versionsFile, new TextEncoder().encode(new_text))
+
+const new_contents = Deno.readFileSync(versionsFile)
 const new_raw_text = decoder.decode(new_contents);
-if (!new_raw_text.includes(to_version) || new_raw_text.includes(from_version)) {
+if (!new_raw_text.includes(new_version_string) || new_raw_text.includes(old_version_string)) {
     throw new Error("Failed to update version in new clone! Check that your versions are correct (first version must match current QM default branch), and if yes, please follow manual steps, starting at step 5.");
 }
 
