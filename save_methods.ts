@@ -35,7 +35,7 @@ const new_tiny_file = await Deno.readTextFile(`qm/hashed-${to_version}.tiny`);
 const new_tiny = tiny.parse(new_tiny_file);
 
 async function load_jar_file(base_path: string, version: string) {
-    const path = base_path + version + "-hashed.jar";
+    const path = base_path + "build/minecraft/mapped/" + version + "-hashed.jar";
     return await jar_utils.load_file(path);
 }
 
