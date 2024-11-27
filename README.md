@@ -15,7 +15,7 @@ You can also set up manually, see [manual setup](#manual-setup).
 
 ## matching
 
-1. In both the old and new clones, run `./gradlew mapPerVersionMappingsJar`.
+1. In both the old and new clones, run `./gradlew mapIntermediateMappingsJar`.
    - If you're seeing a "Could not resolve all files for configuration :hashed" error, it means that the [hashed](https://github.com/QuiltMC/mappings-hasher) publication is not yet released for the new minecraft version. This should normally happen automatically, but github will disable the automatic publishing if hashed has not seen activity in 60 days. In that case, go over to the [check and publish](https://github.com/QuiltMC/mappings-hasher/actions/workflows/check-and-publish.yml) action and reenable it. Manually trigger a run, and the hashed file should be available for your version in 2-3 minutes.
 3. In the new clone, run `./gradlew dropInvalidMappings`.
 4. Run `git add .` and `git commit -m "[your new version name]"` to commit. For us, this is `git commit -m "1.19"`.
@@ -39,6 +39,6 @@ If the deno task fails, please report it and follow these steps to manually set 
 2. Enter your root folder.
 3. Clone QM with `git clone https://github.com/quiltmc/quilt-mappings [your old version name]`. For us, this means we'll have a QM clone in a directory named `1.18`.
 4. Repeat, this time naming the clone after your new version.
-5. Go into your new version clone and update the `MINECRAFT_VERSION` constant in `buildSrc/src/main/java/quilt/internal/Constants.java` to match your current version.
+5. Go into your new version clone and update the `minecraft` version in `gradle/libs.version.toml` to match your current version.
 6. Still in the new version clone, run `git checkout -b [your new version name]` to create a new branch for the new version. (`git checkout -b 1.19` for us)
 7. Return to your root folder. You're ready to start matching!
