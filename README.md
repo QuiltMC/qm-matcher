@@ -15,7 +15,7 @@ You can also set up manually, see [manual setup](#manual-setup).
 
 ## matching
 
-1. In both the old and new clones, run `./gradlew mapPerVersionMappingsJar`.
+1. In both the old and new clones, run `./gradlew mapIntermediateMappingsJar`.
    - If you're seeing a "Could not resolve all files for configuration :hashed" error, it means that the [hashed](https://github.com/QuiltMC/mappings-hasher) publication is not yet released for the new minecraft version. This should normally happen automatically, but github will disable the automatic publishing if hashed has not seen activity in 60 days. In that case, go over to the [check and publish](https://github.com/QuiltMC/mappings-hasher/actions/workflows/check-and-publish.yml) action and reenable it. Manually trigger a run, and the hashed file should be available for your version in 2-3 minutes.
 3. In the new clone, run `./gradlew dropInvalidMappings`.
 4. Run `git add .` and `git commit -m "[your new version name]"` to commit. For us, this is `git commit -m "1.19"`.
