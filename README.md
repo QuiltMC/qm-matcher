@@ -39,6 +39,6 @@ If the deno task fails, please report it and follow these steps to manually set 
 2. Enter your root folder.
 3. Clone QM with `git clone https://github.com/quiltmc/quilt-mappings [your old version name]`. For us, this means we'll have a QM clone in a directory named `1.18`.
 4. Repeat, this time naming the clone after your new version.
-5. Go into your new version clone and update the `MINECRAFT_VERSION` constant in `buildSrc/src/main/java/quilt/internal/Constants.java` to match your current version.
+5. Go into your new version clone and update the `minecraft` version in `gradle/libs.version.toml` to match your current version.
 6. Still in the new version clone, run `git checkout -b [your new version name]` to create a new branch for the new version. (`git checkout -b 1.19` for us)
 7. Return to your root folder. You're ready to start matching!
